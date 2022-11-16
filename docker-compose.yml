@@ -1,0 +1,40 @@
+version: '3.8'
+services:
+  postgresdbserver:
+    image: postgres:9.6.6
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=mysecretpassword
+      - POSTGRES_DB=sysml2
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgresdbserver:/var/lib/postgresql/data
+
+  sysmlapiserver:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    tty: true
+    links:
+      - postgresdbserver
+    ports:
+      - "9000:9000"
+    restart: always
+
+  sysmljupyter:
+    build:
+      context: .
+      dockerfile: Dockerfile.jupyter
+    links:
+      - sysmlapiserver
+    ports:
+      - "8888:8888"
+    restart: always
+    volumes:
+      - "./mydata:/home/sysml/SysML-v2-Release-${SYSML_RELEASE}/mydata"
+
+volumes:
+  postgresdbserver:
+
