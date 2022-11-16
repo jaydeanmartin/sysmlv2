@@ -1,138 +1,40 @@
 # Docker image for running SysML v2
 
-Create a docker image for running [SysML v2 Release](https://github.com/Systems-Modeling/SysML-v2-Release) in Jupyter.
+This repository contains the recipes and configurations necessary to setup and run the SysML v2 API, Jupyter notebook server, and database to store models. 
 
-The setup is taken from the [Jupyter installation](https://github.com/Systems-Modeling/SysML-v2-Release/tree/master/install/jupyter).
+The fist requirement is an environment that can run docker containers. On Windows this is Docker-Deskptop. Thi smust be installed and running before the follwowing command can be executed.
 
-In addition, an [API Server](https://github.com/Systems-Modeling/SysML-v2-API-Services) is also started and everything published in Jupyter will be pushed into this server.
+Once the repo has been cloned all one needs to do is type:
 
-## Remote Services
+docker-compose up -d --build
 
-You can try this out on Binder, via DockerHub or just view the notebooks at nbviewer.
+This will build all of hte containers and start them up, running in the background. On a fresh install, this may take over 30 minutes depending on network speed and computer speed.
 
-### Binder
+Once the containers have started, one cen see their logs (output to stdout) by entering:
+docker-compose logs -f
 
-You can run this on [Binder](https://mybinder.org) but it will only run the SysMLv2-based Jupyter server, not the API server.
+This will stay open and continue to display new stdout. This can be exited with crtl-c.
 
-Latest version: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/gorenje/sysmlv2-jupyter-docker/HEAD)
+When you want to stop the containers, simply:
 
-See below for specific release links.
+docker-compose down -v
 
-You can also view notebooks via [nbviewer](https://nbviewer.jupyter.org/github/gorenje/sysmlv2-jupyter-docker/tree/master/notebooks) and from there it's possible to start up [Binder](https://mybinder.org).
+The -v option removes the volume that cantains the database, you may not want to do this if you don't want to recreate the database each time you restart the containers. 
 
-### Dockerhub
+The containers can be restarted without building by:
 
-Docker images are also [available](https://hub.docker.com/r/gorenje/sysmlv2-jupyter). These are only of the Jupyter installation not the API server.
+docker-compose up -d
 
-See below for specific pull statements.
+Once the containers have started point a local web browser to localhost:9000/data, this will force teh creation of the database if it doesn't exist - this will spam the stdout with all of the datbase creation commands. Once this has completed, you will see soem text on the page:
+{"error":{"requestId":1,"message":""}}
 
-### nbviewer
+This is normal and means it finished.
+To get to the notebook server point the browser to localhost:8888
+The first time you go to this page it will ask for a "token" enter "sysmlv2"
 
-Repo can also be viewed using [nbviewer](https://nbviewer.jupyter.org/github/gorenje/sysmlv2-jupyter-docker/tree/main/).
+I would recommend always hitting lcoalhost::9000/data and then localhost:9000/docs/ before trying to publish in a notebook to make sure things are running properly. localhost:9000/docs/ brings up the swagger page to show the currently implemented REST API Services.
 
-See below for specific release links.
 
-### Dedicated Server
-
-Thanks to [Tim Weilkiens](https://github.com/Weilkiti), there is now a dedicated [server](https://www.sysmlv2lab.com/) running the [latest](https://hub.docker.com/r/gorenje/sysmlv2-jupyter/tags?ordering=last_updated&page=1&name=latest) version of this repo.
-
-### Overview
-
-| [nbviewer](https://nbviewer.jupyter.org/github/gorenje/sysmlv2-jupyter-docker/tree/main/) | [binder](https://mybinder.org/v2/gh/gorenje/sysmlv2-jupyter-docker/HEAD) | [docker hub](https://hub.docker.com/r/gorenje/sysmlv2-jupyter) |
-|:--|:--|:--|
-|  | |  `docker pull weilkiti/sysmlv2-jupyter:2022-10` |
-|  | |  `docker pull weilkiti/sysmlv2-jupyter:2022-09` |
-|  | |  `docker pull weilkiti/sysmlv2-jupyter:2022-08` |
-| [2022-07](https://nbviewer.jupyter.org/github/gorenje/sysmlv2-jupyter-docker/tree/release-2022-07/) | [2022-07](https://mybinder.org/v2/gh/gorenje/sysmlv2-jupyter-docker/release-2022-07) |  `docker pull gorenje/sysmlv2-jupyter:2022-07` |
-| [2022-06](https://nbviewer.jupyter.org/github/gorenje/sysmlv2-jupyter-docker/tree/release-2022-06/) | [2022-06](https://mybinder.org/v2/gh/gorenje/sysmlv2-jupyter-docker/release-2022-06) |  `docker pull gorenje/sysmlv2-jupyter:2022-06` |
-| [2022-05](https://nbviewer.jupyter.org/github/gorenje/sysmlv2-jupyter-docker/tree/release-2022-05/) | [2022-05](https://mybinder.org/v2/gh/gorenje/sysmlv2-jupyter-docker/release-2022-05) |  `docker pull gorenje/sysmlv2-jupyter:2022-05` |
-| [2022-04](https://nbviewer.jupyter.org/github/gorenje/sysmlv2-jupyter-docker/tree/release-2022-04/) | [2022-04](https://mybinder.org/v2/gh/gorenje/sysmlv2-jupyter-docker/release-2022-04) |  `docker pull gorenje/sysmlv2-jupyter:2022-04` |
-| [2022-03](https://nbviewer.jupyter.org/github/gorenje/sysmlv2-jupyter-docker/tree/release-2022-03/) | [2022-03](https://mybinder.org/v2/gh/gorenje/sysmlv2-jupyter-docker/release-2022-03) |  `docker pull gorenje/sysmlv2-jupyter:2022-03` |
-| [2022-02](https://nbviewer.jupyter.org/github/gorenje/sysmlv2-jupyter-docker/tree/release-2022-02/) | [2022-02](https://mybinder.org/v2/gh/gorenje/sysmlv2-jupyter-docker/release-2022-02) |  `docker pull gorenje/sysmlv2-jupyter:2022-02` |
-| [2022-01](https://nbviewer.jupyter.org/github/gorenje/sysmlv2-jupyter-docker/tree/release-2022-01/) | [2022-01](https://mybinder.org/v2/gh/gorenje/sysmlv2-jupyter-docker/release-2022-01) |  `docker pull gorenje/sysmlv2-jupyter:2022-01` |
-| [2021-12](https://nbviewer.jupyter.org/github/gorenje/sysmlv2-jupyter-docker/tree/release-2021-12/) | [2021-12](https://mybinder.org/v2/gh/gorenje/sysmlv2-jupyter-docker/release-2021-12) |  `docker pull gorenje/sysmlv2-jupyter:2021-12` |
-| [2021-11](https://nbviewer.jupyter.org/github/gorenje/sysmlv2-jupyter-docker/tree/release-2021-11/) | [2021-11](https://mybinder.org/v2/gh/gorenje/sysmlv2-jupyter-docker/release-2021-11) |  `docker pull gorenje/sysmlv2-jupyter:2021-11` |
-| [2021-10](https://nbviewer.jupyter.org/github/gorenje/sysmlv2-jupyter-docker/tree/release-2021-10/) | [2021-10](https://mybinder.org/v2/gh/gorenje/sysmlv2-jupyter-docker/release-2021-10) |  `docker pull gorenje/sysmlv2-jupyter:2021-10` |
-| [2021-09](https://nbviewer.jupyter.org/github/gorenje/sysmlv2-jupyter-docker/tree/release-2021-09/) | [2021-09](https://mybinder.org/v2/gh/gorenje/sysmlv2-jupyter-docker/release-2021-09) |  `docker pull gorenje/sysmlv2-jupyter:2021-09` |
-| [2021-08.1](https://nbviewer.jupyter.org/github/gorenje/sysmlv2-jupyter-docker/tree/release-2021-08.1/) | [2021-08.1](https://mybinder.org/v2/gh/gorenje/sysmlv2-jupyter-docker/release-2021-08.1) |  `docker pull gorenje/sysmlv2-jupyter:2021-08.1` |
-| [2021-08](https://nbviewer.jupyter.org/github/gorenje/sysmlv2-jupyter-docker/tree/release-2021-08/) | [2021-08](https://mybinder.org/v2/gh/gorenje/sysmlv2-jupyter-docker/release-2021-08) |  `docker pull gorenje/sysmlv2-jupyter:2021-08` |
-| [2021-06](https://nbviewer.jupyter.org/github/gorenje/sysmlv2-jupyter-docker/tree/release-2021-06/) | [2021-06](https://mybinder.org/v2/gh/gorenje/sysmlv2-jupyter-docker/release-2021-06) |  `docker pull gorenje/sysmlv2-jupyter:2021-06` |
-| [2021-05](https://nbviewer.jupyter.org/github/gorenje/sysmlv2-jupyter-docker/tree/release-2021-05/) | [2021-05](https://mybinder.org/v2/gh/gorenje/sysmlv2-jupyter-docker/release-2021-05) |  `docker pull gorenje/sysmlv2-jupyter:2021-05` |
-| [2021-04](https://nbviewer.jupyter.org/github/gorenje/sysmlv2-jupyter-docker/tree/release-2021-04/) | [2021-04](https://mybinder.org/v2/gh/gorenje/sysmlv2-jupyter-docker/release-2021-04) |  `docker pull gorenje/sysmlv2-jupyter:2021-04` |
-| [2021-03](https://nbviewer.jupyter.org/github/gorenje/sysmlv2-jupyter-docker/tree/release-2021-03/) | [2021-03](https://mybinder.org/v2/gh/gorenje/sysmlv2-jupyter-docker/release-2021-03) |  `docker pull gorenje/sysmlv2-jupyter:2021-03` |
-| [2021-02](https://nbviewer.jupyter.org/github/gorenje/sysmlv2-jupyter-docker/tree/release-2021-02/) | [2021-02](https://mybinder.org/v2/gh/gorenje/sysmlv2-jupyter-docker/release-2021-02) |  `docker pull gorenje/sysmlv2-jupyter:2021-02` |
-| [2021-01](https://nbviewer.jupyter.org/github/gorenje/sysmlv2-jupyter-docker/tree/release-2021-01/) | [2021-01](https://mybinder.org/v2/gh/gorenje/sysmlv2-jupyter-docker/release-2021-01) | `docker pull gorenje/sysmlv2-jupyter:2021-01`  |
-| [2020-12](https://nbviewer.jupyter.org/github/gorenje/sysmlv2-jupyter-docker/tree/release-2020-12/) | [2020-12](https://mybinder.org/v2/gh/gorenje/sysmlv2-jupyter-docker/release-2020-12) |  `docker pull gorenje/sysmlv2-jupyter:2020-12` |
-| [2020-11](https://nbviewer.jupyter.org/github/gorenje/sysmlv2-jupyter-docker/tree/release-2020-11/)  | [2020-11](https://mybinder.org/v2/gh/gorenje/sysmlv2-jupyter-docker/release-2020-11) |  `docker pull gorenje/sysmlv2-jupyter:2020-11` |
-| [2020-10](https://nbviewer.jupyter.org/github/gorenje/sysmlv2-jupyter-docker/tree/release-2020-10/) |  [2020-10](https://mybinder.org/v2/gh/gorenje/sysmlv2-jupyter-docker/release-2020-10) | `docker pull gorenje/sysmlv2-jupyter:2020-10` |
-
-## Local Usage
-
-Be aware, building the docker images will take a while since all the software
-packages will be retrieved. Everything is built and run locally.
-
-### Prerequistes
-
-- [Docker](https://www.docker.com/)
-
-Everything else is installed by the build process.
-
-### Makefile
-
-To start up the SysML-Jupyter server, the postgres server and the API server:
-
-    make spin-up
-
-Then point your browser first to ```http://localhost:9000/docs/``` - this will setup
-the database for the API server. Once this displays a page, then point your
-browswer to the Jupyter page. This is on ```http://localhost:8888```,
-don't use the hostname ```sysmljupyter```, that's internal to docker.
-
-```
-    To access the notebook, open this file in a browser:
-        file:///root/.local/share/jupyter/runtime/nbserver-1-open.html
-    Or copy and paste one of these URLs:
-        http://sysmljupyter:8888/?token=392e5b7c0e8cde28d6f988862bc7ad81ba6c517e31b63520
-     or http://127.0.0.1:8888/?token=392e5b7c0e8cde28d6f988862bc7ad81ba6c517e31b63520
-```
-
-The token is unique for each start of the container.
-
-NOTE: If `localhost` does not work in the URLs, try `127.0.0.1` instead.
-
-### Using Docker
-
-If you want to do this using docker only, i.e. no makefile, then have a
-look at the Makefile. Basically it's something along the lines of:
-
-    docker build -t sysml.jupyter -f Dockerfile.jupyter .
-    docker build -t sysml.api     -f Dockerfile.api     .
-    docker network create thenetwork
-    docker volume create postgresdbserver
-    docker-compose -f docker-compose.yml up
-
-That is the same as doing ```make spin-up```.
-
-### Other Docker Builds
-
-The Makefile also does the following builds for local usage:
-
-1. `make build-mybinder` will build the docker image that is used with mybinder. This image can then be run locally using `make run-mybinder`.
-
-2. `make build-hub` will build the docker hub image. Running this image can be done with `make run-hub`.
-
-These also work for each release that is supported by this repo.
-
-### Checking out other releases
-
-Each release has it's own branch, so for example to test the [SysML v2 Release 2020-12](https://github.com/Systems-Modeling/SysML-v2-Release/releases/tag/2020-12), do the following:
-
-```
-git checkout release-2020-12
-make run-hub
-```
-
-That will locally start DockerHub Jupyter image with the 2020-12 release.
 
 ## Production Use?
 
