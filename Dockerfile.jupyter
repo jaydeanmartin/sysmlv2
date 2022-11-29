@@ -73,6 +73,10 @@ ENV PATH="${HOME}/conda/bin:${HOME}/conda/condabin:/usr/local/openjdk-17/bin:/us
 RUN pip install euporie
 
 ## Install SysMLv2 as Jupyter Kernel
+ENV JUPYTER_ENABLE_LAB=yes
+ENV JUPYTER_TOKEN=sysmlv2
+
+## Install SysMLv2 as Jupyter Kernel
 RUN ./install.sh
 
 ## Point the publish command to the local API server.
@@ -80,6 +84,7 @@ RUN sed s/sysml2.intercax.com:9000/sysmlapiserver:9000/ -i ${HOME}/conda/share/j
 
 ## Uninstall the terminal feature for security reasons
 RUN pip uninstall -y terminado
+RUN pip install pandas
 
 WORKDIR ${HOME}/SysML-v2-Release-${RELEASE}/
 
