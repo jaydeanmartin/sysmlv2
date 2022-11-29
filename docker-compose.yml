@@ -1,7 +1,7 @@
 version: '3.8'
 services:
   postgresdbserver:
-    image: postgres:9.6.6
+    image: postgres:12-bullseye
     restart: always
     environment:
       - POSTGRES_USER=postgres
