@@ -1,4 +1,3 @@
-version: '3.8'
 services:
   postgresdbserver:
     image: postgres:12-bullseye
@@ -16,6 +15,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.api
+    image: sysmlapiserver
     tty: true
     links:
       - postgresdbserver
@@ -27,11 +27,13 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.jupyter
+    image: sysmljupyter
     links:
       - sysmlapiserver
     ports:
       - "8888:8888"
     restart: always
+    user: ${NB_USER}
     volumes:
       - "./mydata:/home/sysml/SysML-v2-Release-${SYSML_RELEASE}/mydata"
 

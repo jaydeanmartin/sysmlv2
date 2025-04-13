@@ -1,4 +1,4 @@
-FROM openjdk:11-slim
+FROM openjdk:11-slim AS build
 
 ##
 ## This Dockerfile setups the SysML v2 API server and is designed to be
@@ -6,16 +6,17 @@ FROM openjdk:11-slim
 ## designed to be run with docker-compose.
 ##
 
-RUN apt-get --quiet --yes update && apt-get install -yqq wget
+RUN apt-get --quiet --yes update && apt-get install -yqq \
+    wget
 
 ##
 ## Use a non-root user for installation
 ##
 ARG NB_USER=sysml
 ARG NB_UID=1000
-ENV USER ${NB_USER}
-ENV NB_UID ${NB_UID}
-ENV HOME /home/${NB_USER}
+# ENV USER ${NB_USER}
+# ENV NB_UID ${NB_UID}
+ENV HOME=/home/${NB_USER}
 
 RUN adduser --disabled-password \
     --gecos "Default user" \
@@ -30,11 +31,12 @@ USER ${NB_USER}
 WORKDIR ${HOME}
 
 ARG SBT_VERSION=1.2.8
+# ARG SBT_VERSION=1.10.7
 RUN wget -q https://github.com/sbt/sbt/releases/download/v${SBT_VERSION}/sbt-${SBT_VERSION}.tgz
 
 ## Defining the RELEASE down here ensures that the previous comamnds can
 ## be recycled since they're not affected by the release version.
-ARG RELEASE=2022-10
+ARG RELEASE=2024-12
 
 RUN wget -q https://github.com/Systems-Modeling/SysML-v2-API-Services/archive/${RELEASE}.tar.gz?ts=20220819Z020300+00 -O ${RELEASE}.tar.gz
 
@@ -42,6 +44,14 @@ RUN tar xfz sbt-${SBT_VERSION}.tgz
 RUN tar xfz ${RELEASE}.tar.gz
 
 WORKDIR ${HOME}/SysML-v2-API-Services-${RELEASE}
+
+# At this point we do have access to the build.sbt file if we want to make any chnages in the future.
+# This does not work since extracting the tar file puts things in a specific directory.
+# WORKDIR ${HOME}/app
+
+# COPY build.sbt .
+# COPY build.properties project/.
+# COPY plugins.sbt project/.
 
 ##
 ## Basically this is all taken from
@@ -64,5 +74,29 @@ RUN sed s/localhost:5432/postgresdbserver:5432/ -i conf/META-INF/persistence.xml
 ## don't recreate the database if it already exists.
 RUN sed s/value=.create-drop./value=\"update\"/ -i conf/META-INF/persistence.xml
 
+
+# generate the code for a standalone container
+RUN ${HOME}/sbt/bin/sbt dist
+# uncomment the following lines if the build container is to be used
+# EXPOSE 9000
+# ENTRYPOINT ${HOME}/sbt/bin/sbt run
+
+FROM openjdk:11-slim
+
+USER root
+RUN apt-get --quiet --yes update && apt-get install unzip
+
+ARG RELEASE=2024-12
+ARG NB_USER=sysml
+ARG NB_UID=1000
+ENV HOME=${NB_USER}
+
+# this solution to pathing is extremely fragile but ARGs don't survive FROM
+COPY --from=build /home/${HOME}/SysML-v2-API-Services-${RELEASE}/target/universal /usr/src/myapp
+WORKDIR /usr/src/myapp
+RUN unzip sysml-v2-api-services-${RELEASE}.zip
+RUN rm -R scripts/bin
+RUN mv -f sysml-v2-api-services-${RELEASE}/* scripts/
 EXPOSE 9000
-ENTRYPOINT ${HOME}/sbt/bin/sbt run
+ENTRYPOINT /usr/src/myapp/scripts/bin/sysml-v2-api-services
+
