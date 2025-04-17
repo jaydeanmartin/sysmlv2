@@ -2,13 +2,13 @@
 
 This repository contains the recipes and configurations necessary to setup and run the SysML v2 API, Jupyter notebook server, and database to store models. 
 
-The fist requirement is an environment that can run docker containers. On Windows this is Docker-Deskptop. Thi smust be installed and running before the follwowing command can be executed.
+The fist requirement is an environment that can run docker containers. On Windows this is Docker-Desktop. This must be installed and running before the following command(s) can be executed. Part of installing Docker-Desktop is installing WSL2 for Windows. If you are running in linux, you only need to have docker-engine installed.
 
-Once the repo has been cloned all one needs to do is type:
+Once the repo has been cloned all one needs to do is type (at a linux/WSL prompt):
 
 docker compose build
 
-This will build three containers. On a fresh install, this may take over 30 minutes depending on network speed and computer speed.
+This will build three containers: sysmljupyter, sysmlapiserver, and postgresdbserver. On a fresh install, this may take over 30 minutes depending on network speed and computer speed.
 
 docker compose up -d
 
@@ -30,13 +30,13 @@ or
 
 docker compose down -v
 
-The -v option removes the volume that cantains the database, you may not want to do this if you don't want to recreate the database each time you restart the containers. 
+The -v option removes the volume that stores the database. You may not want to do this if you don't want to recreate the database each time you restart the containers. 
 
 The containers can be restarted without building by:
 
 docker compose up -d
 
-Once the containers have started point a local web browser to localhost:9000/data, this will force the creation of the database if it doesn't exist - this will spam the stdout with all of the datbase creation commands. Once this has completed, you will see some text on the page:
+Once the containers have started, point a local web browser to localhost:9000/data, this will force the creation of the SysMLAPI database if it doesn't exist - this will spam the stdout with all of the database creation commands. Once this has completed, you will see some text on the page:
 {"error":{"requestId":1,"message":""}}
 
 This is normal and means it finished.
@@ -44,7 +44,7 @@ This is normal and means it finished.
 To get to the notebook server point the browser to localhost:8888/lab
 The first time you go to this page it will ask for a "token" enter "sysmlv2"
 
-I would recommend always hitting localhost::9000/data and then localhost:9000/docs/ before trying to publish a notebook to make sure things are running properly. localhost:9000/docs/ brings up the swagger page to show the currently implemented REST API Services.
+I would recommend always hitting localhost::9000/data and then localhost:9000/docs/ before trying to publish a notebook to make sure things are running properly. localhost:9000/docs/ brings up the swagger/OpenAPI page to show the currently implemented REST API Services.
 
 
 
@@ -72,6 +72,16 @@ There is a "mydata" folder that you can create your own notebooks in. It is tied
 
 When a new [release tag](https://github.com/Systems-Modeling/SysML-v2-Release/tags) becomes available, the following things need doing:
 
+Change the setting of the RELEASE argument in Dockerfile and Dockerfile.jupyter (there are 3 locations)
+
+Change the setting of RELEASE and SYSML_RELEASE in .env file
+
+docker compose build
+
+Wait a long time....
+
+docker compose up -d
+
 
 
 ## Licensing
@@ -81,4 +91,3 @@ Both [SysMLv2 API Server](https://github.com/Systems-Modeling/SysML-v2-API-Servi
 **This project does not make any changes to the existing licensing of the
 referenced projects.**
 
-This project is also licensed under the [LGPL](/LICENSE).
