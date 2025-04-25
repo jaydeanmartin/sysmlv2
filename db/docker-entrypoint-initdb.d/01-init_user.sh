@@ -1,0 +1,5 @@
+psql << EOSQL
+create USER ${SQL_USER} with password '${SQL_PASSWORD}';
+create DATABASE ${SQL_DATABASE} with owner ${SQL_USER};
+GRANT ALL PRIVILEGES ON DATABASE ${SQL_DATABASE} to ${SQL_USER};
+EOSQL

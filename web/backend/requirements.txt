@@ -1,0 +1,11 @@
+pip
+setuptools
+wheel
+django
+psycopg2-binary
+djangorestframework
+gunicorn
+django-cors-headers
+django-jsoneditor
+django-extensions
+

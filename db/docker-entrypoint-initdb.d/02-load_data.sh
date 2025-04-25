@@ -1,0 +1,1 @@
+# psql -d $sql_database -f data/db.sql

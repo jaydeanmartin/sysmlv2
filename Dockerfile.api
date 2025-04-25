@@ -69,7 +69,7 @@ RUN sed s/key=.whatever./key=\"longersecretnowarnings\"/ -i conf/application.con
 RUN echo "\n\nplay.filters.hosts {\n   allowed = [\"sysmlapiserver:9000\", \"localhost:9000\"]\n}\n" >> conf/application.conf
 
 ## point the image to the postgres that is setup via docker-compose
-RUN sed s/localhost:5432/postgresdbserver:5432/ -i conf/META-INF/persistence.xml
+RUN sed s/localhost:5432/db:5432/ -i conf/META-INF/persistence.xml
 
 ## don't recreate the database if it already exists.
 RUN sed s/value=.create-drop./value=\"update\"/ -i conf/META-INF/persistence.xml
