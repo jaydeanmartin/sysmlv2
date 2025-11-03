@@ -36,9 +36,9 @@ RUN wget -q https://github.com/sbt/sbt/releases/download/v${SBT_VERSION}/sbt-${S
 
 ## Defining the RELEASE down here ensures that the previous comamnds can
 ## be recycled since they're not affected by the release version.
-ARG RELEASE=2024-12
+ARG RELEASE=2025-02
 
-RUN wget -q https://github.com/Systems-Modeling/SysML-v2-API-Services/archive/${RELEASE}.tar.gz?ts=20220819Z020300+00 -O ${RELEASE}.tar.gz
+RUN wget -q https://github.com/Systems-Modeling/SysML-v2-API-Services/archive/${RELEASE}.tar.gz -O ${RELEASE}.tar.gz
 
 RUN tar xfz sbt-${SBT_VERSION}.tgz
 RUN tar xfz ${RELEASE}.tar.gz
@@ -86,7 +86,7 @@ FROM openjdk:11-slim
 USER root
 RUN apt-get --quiet --yes update && apt-get install unzip
 
-ARG RELEASE=2024-12
+ARG RELEASE=2025-02
 ARG NB_USER=sysml
 ARG NB_UID=1000
 ENV HOME=${NB_USER}

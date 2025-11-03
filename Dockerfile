@@ -43,7 +43,7 @@ RUN wget -q https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.s
 
 ## Defining the RELEASE down here ensures that the previous comamnds can
 ## be recycled since they're not affected by the release version.
-ARG RELEASE=2022-10
+ARG RELEASE=2025-09.1
 
 ##
 ## SysML page: https://github.com/Systems-Modeling/SysML-v2-Release
@@ -54,6 +54,8 @@ RUN wget -q https://github.com/Systems-Modeling/SysML-v2-Release/archive/${RELEA
 RUN chmod 755 ${HOME}/Miniconda3-latest-Linux-x86_64.sh
 RUN mkdir ${HOME}/conda
 RUN ${HOME}/Miniconda3-latest-Linux-x86_64.sh -f -b -p ${HOME}/conda
+RUN conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/main \
+ && conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/r
 RUN ${HOME}/conda/condabin/conda init
 
 ## Install SysML

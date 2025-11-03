@@ -1,4 +1,4 @@
-FROM openjdk:17-slim
+FROM openjdk:21-slim
 
 ##
 ## This Dockerfile is specifically designed to be run with the API Server
@@ -50,7 +50,7 @@ RUN wget -q https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.s
 
 ## Defining the RELEASE down here ensures that the previous comamnds can
 ## be recycled since they're not affected by the release version.
-ARG RELEASE=2024-12
+ARG RELEASE=2025-09.1
 
 ##
 ## SysML page: https://github.com/Systems-Modeling/SysML-v2-Release
@@ -61,6 +61,8 @@ RUN wget -q https://github.com/Systems-Modeling/SysML-v2-Release/archive/${RELEA
 RUN chmod 755 ${HOME}/Miniconda3-latest-Linux-x86_64.sh
 RUN mkdir ${HOME}/conda
 RUN ${HOME}/Miniconda3-latest-Linux-x86_64.sh -f -b -p ${HOME}/conda
+RUN ${HOME}/conda/condabin/conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/main \
+ && ${HOME}/conda/condabin/conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/r
 
 USER root
 RUN ${HOME}/conda/condabin/conda init
@@ -77,7 +79,7 @@ WORKDIR ${HOME}/SysML-v2-Release-${RELEASE}/install/jupyter
 
 ## This is the path that conda init setups but conda init has no effect
 ## here, so setup the PATH by hand. Else install.sh won't work.
-ENV PATH="/usr/local/openjdk-17/bin:${HOME}/conda/bin:${HOME}/conda/condabin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+ENV PATH="/usr/local/openjdk-21/bin:${HOME}/conda/bin:${HOME}/conda/condabin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
 ## Install terminal notebook editor - https://github.com/joouha/euporie
 RUN pip install euporie
@@ -98,9 +100,12 @@ ENV NVM_DIR=${HOME}/.nvm
 ENV NODE_VERSION=14
 # install node and
 # Install SysMLv2 as Jupyter Kernel
-RUN . $NVM_DIR/nvm.sh \
-  && nvm install $NODE_VERSION \
-  && ./install.sh
+
+
+USER root
+# RUN . $NVM_DIR/nvm.sh \
+#   && nvm install $NODE_VERSION \
+#   && ./install.sh
 
 ## Uninstall the terminal feature for security reasons
 # RUN pip uninstall -y terminado
@@ -127,13 +132,14 @@ RUN mv notebooks/*.ipynb .
 ## Trust the notebooks so that the SVG images will be displayed.
 # RUN find . -name \*.ipynb -exec jupyter trust \{\} \;
 
-USER ${NB_USER}
+# USER ${NB_USER}
 
 ## Point the publish command to the local API server.
-RUN sed s/sysml2.intercax.com:9000/sysmlapiserver:9000/ -i ${HOME}/conda/share/jupyter/kernels/sysml/kernel.json
+# RUN sed s/sysml2.intercax.com:9000/sysmlapiserver:9000/ -i ${HOME}/conda/share/jupyter/kernels/sysml/kernel.json
 
 
 EXPOSE 8888
-# ENTRYPOINT jupyter lab --ip sysmljupyter --port 8888
-ENTRYPOINT jupyter lab --ip sysmljupyter --config ./jupyter_server_config.py
-# ENTRYPOINT jupyter server --ip sysmljupyter --config ${HOME}/jupyter_server_config.py 
+CMD ["tail", "-f", "/dev/null"]
+# ENTRYPOINT jupyter lab --ip sysmljupyter --port 8888 - not this one
+# ENTRYPOINT jupyter lab --ip sysmljupyter --config ./jupyter_server_config.py
+# ENTRYPOINT jupyter server --ip sysmljupyter --config ${HOME}/jupyter_server_config.py -not this one
