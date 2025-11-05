@@ -1,4 +1,4 @@
-FROM amazoncorretto:21-al2-jdk
+FROM amazoncorretto:21-al2023-jdk
 
 ##
 ## This Dockerfile is specifically designed to be run with the API Server
@@ -10,9 +10,9 @@ FROM amazoncorretto:21-al2-jdk
 ## required for rendering notebooks as PDFs.
 RUN yum update -y && \
     yum install -y -q \
-  wget                        \
-  curl                        \
   shadow-utils  \
+  wget  \
+  findutils   \
   tar   \
   gzip   \
   glibc   \
@@ -105,8 +105,8 @@ ENV NODE_VERSION=14
 
 
 USER root
-# RUN . $NVM_DIR/nvm.sh \
-#   && nvm install $NODE_VERSION \
+RUN . $NVM_DIR/nvm.sh \
+  && nvm install $NODE_VERSION 
 #   && ./install.sh
 
 ## Uninstall the terminal feature for security reasons

@@ -1,4 +1,4 @@
-FROM amazoncorretto:11-al2-jdk AS build
+FROM amazoncorretto:11-al2023-jdk AS build
 
 ##
 ## This Dockerfile setups the SysML v2 API server and is designed to be
@@ -9,7 +9,6 @@ FROM amazoncorretto:11-al2-jdk AS build
 
 RUN yum update -y && \
     yum install -y -q \
-    curl \
     shadow-utils   \
     tar   \
     gzip   \
@@ -89,7 +88,7 @@ RUN ${HOME}/sbt/bin/sbt dist
 # EXPOSE 9000
 # ENTRYPOINT ${HOME}/sbt/bin/sbt run
 
-FROM amazoncorretto:11-al2-jdk
+FROM amazoncorretto:11-al2023-jdk
 
 USER root
 RUN yum update -y && \
