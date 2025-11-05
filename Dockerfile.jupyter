@@ -1,4 +1,4 @@
-FROM openjdk:21-slim
+FROM amazoncorretto:21-al2-jdk
 
 ##
 ## This Dockerfile is specifically designed to be run with the API Server
@@ -8,13 +8,16 @@ FROM openjdk:21-slim
 
 ## wget is used to retrieve Conda and SysML Release. Inkscape and LaTeX is
 ## required for rendering notebooks as PDFs.
-RUN apt-get --quiet --yes update && apt-get install -yqq \
-  gcc                         \
+RUN yum update -y && \
+    yum install -y -q \
   wget                        \
   curl                        \
-  libxrender1       \
-  libxext6           \
-  gnupg                       
+  shadow-utils  \
+  tar   \
+  gzip   \
+  glibc   \
+  libXrender       \
+  libXext                           
  
 
 # RUN apt-get install -y nodejs
@@ -29,8 +32,7 @@ ENV USER=${NB_USER}
 ENV NB_UID=${NB_UID}
 ENV HOME=/home/${NB_USER}
 
-RUN adduser --disabled-password \
-    --gecos "Default user" \
+RUN adduser \
     --uid ${NB_UID} \
     ${NB_USER}
 

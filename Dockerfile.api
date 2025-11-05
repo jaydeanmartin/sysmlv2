@@ -1,4 +1,4 @@
-FROM openjdk:11-slim AS build
+FROM amazoncorretto:11-al2-jdk AS build
 
 ##
 ## This Dockerfile setups the SysML v2 API server and is designed to be
@@ -6,8 +6,17 @@ FROM openjdk:11-slim AS build
 ## designed to be run with docker-compose.
 ##
 
-RUN apt-get --quiet --yes update && apt-get install -yqq \
-    wget
+
+RUN yum update -y && \
+    yum install -y -q \
+    curl \
+    shadow-utils   \
+    tar   \
+    gzip   \
+    glibc \
+    wget && \
+    yum clean all && \
+    rm -rf /var/cache/yum
 
 ##
 ## Use a non-root user for installation
@@ -18,8 +27,7 @@ ARG NB_UID=1000
 # ENV NB_UID ${NB_UID}
 ENV HOME=/home/${NB_USER}
 
-RUN adduser --disabled-password \
-    --gecos "Default user" \
+RUN adduser \
     --uid ${NB_UID} \
     ${NB_USER}
 
@@ -81,10 +89,12 @@ RUN ${HOME}/sbt/bin/sbt dist
 # EXPOSE 9000
 # ENTRYPOINT ${HOME}/sbt/bin/sbt run
 
-FROM openjdk:11-slim
+FROM amazoncorretto:11-al2-jdk
 
 USER root
-RUN apt-get --quiet --yes update && apt-get install unzip
+RUN yum update -y && \
+    yum install -y -q \
+    unzip
 
 ARG RELEASE=2025-02
 ARG NB_USER=sysml
