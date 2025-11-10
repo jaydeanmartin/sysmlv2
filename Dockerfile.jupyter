@@ -52,7 +52,7 @@ RUN wget -q https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.s
 
 ## Defining the RELEASE down here ensures that the previous comamnds can
 ## be recycled since they're not affected by the release version.
-ARG RELEASE=2025-09.1
+ARG RELEASE=2025-10
 
 ##
 ## SysML page: https://github.com/Systems-Modeling/SysML-v2-Release
@@ -66,7 +66,12 @@ RUN ${HOME}/Miniconda3-latest-Linux-x86_64.sh -f -b -p ${HOME}/conda
 RUN ${HOME}/conda/condabin/conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/main \
  && ${HOME}/conda/condabin/conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/r
 
+
+## not sure we need this line - but will give it a try
+## RUN ${HOME}/conda/condabin/conda update --force-reinstall conda -y
+
 USER root
+
 RUN ${HOME}/conda/condabin/conda init
 
 USER ${NB_USER}
