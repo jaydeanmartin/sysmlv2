@@ -8,19 +8,18 @@ FROM amazoncorretto:21-al2023-jdk
 
 ## wget is used to retrieve Conda and SysML Release. Inkscape and LaTeX is
 ## required for rendering notebooks as PDFs.
-RUN yum update -y && \
-    yum install -y -q \
-  shadow-utils  \
-  wget  \
-  findutils   \
-  tar   \
-  gzip   \
-  glibc   \
-  libXrender       \
-  libXext                           
- 
+USER root
+RUN dnf update -y 
+RUN  dnf install -y -q \
+    shadow-utils  \
+    tar  \
+    findutils   \
+    gzip   \
+    glibc   \
+    wget  
+#     libXrender  \
+#     libXext                           
 
-# RUN apt-get install -y nodejs
 
 ##
 ## Non-root user is a requirement of Binder:
@@ -29,7 +28,7 @@ RUN yum update -y && \
 ARG NB_USER=sysml
 ARG NB_UID=1000
 ENV USER=${NB_USER}
-ENV NB_UID=${NB_UID}
+
 ENV HOME=/home/${NB_USER}
 
 RUN adduser \
@@ -52,7 +51,7 @@ RUN wget -q https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.s
 
 ## Defining the RELEASE down here ensures that the previous comamnds can
 ## be recycled since they're not affected by the release version.
-ARG RELEASE=2025-10
+ARG RELEASE=2025-11
 
 ##
 ## SysML page: https://github.com/Systems-Modeling/SysML-v2-Release
@@ -66,12 +65,7 @@ RUN ${HOME}/Miniconda3-latest-Linux-x86_64.sh -f -b -p ${HOME}/conda
 RUN ${HOME}/conda/condabin/conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/main \
  && ${HOME}/conda/condabin/conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/r
 
-
-## not sure we need this line - but will give it a try
-## RUN ${HOME}/conda/condabin/conda update --force-reinstall conda -y
-
 USER root
-
 RUN ${HOME}/conda/condabin/conda init
 
 USER ${NB_USER}
@@ -80,40 +74,14 @@ USER ${NB_USER}
 ## Unpack SysML
 RUN tar xzf ${RELEASE}.tar.gz
 
-COPY --chown=${NB_USER} jupyter_server_config.py ${HOME}/SysML-v2-Release-${RELEASE}
-
 WORKDIR ${HOME}/SysML-v2-Release-${RELEASE}/install/jupyter
 
 ## This is the path that conda init setups but conda init has no effect
 ## here, so setup the PATH by hand. Else install.sh won't work.
-ENV PATH="/usr/local/openjdk-21/bin:${HOME}/conda/bin:${HOME}/conda/condabin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+ENV PATH="${HOME}/conda/bin:${HOME}/conda/condabin:/usr/local/openjdk-21/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
 ## Install terminal notebook editor - https://github.com/joouha/euporie
 RUN pip install euporie
-
-## Install SysMLv2 as Jupyter Kernel
-ENV JUPYTER_ENABLE_LAB=yes
-ENV JUPYTER_TOKEN=sysmlv2
-
-RUN curl https://raw.githubusercontent.com/creationix/nvm/master/install.sh | bash 
-
-# need to copy a version of install.sh that does not try to install nodejs 
-# it installs version 12, when 14 is required by jupyter
-COPY --chown=${NB_USER} install.sh .
-RUN chmod 755 ./install.sh
-
-# set env
-ENV NVM_DIR=${HOME}/.nvm
-ENV NODE_VERSION=14
-# install node and
-# Install SysMLv2 as Jupyter Kernel
-
-
-USER root
-RUN . $NVM_DIR/nvm.sh \
-  && nvm install $NODE_VERSION 
-#   && ./install.sh
-
 ## Uninstall the terminal feature for security reasons
 # RUN pip uninstall -y terminado
 RUN pip install pandas
@@ -121,7 +89,33 @@ RUN pip install numpy
 RUN pip install matplotlib
 RUN pip install scipy
 
+## Install SysMLv2 as Jupyter Kernel
+ENV JUPYTER_ENABLE_LAB=yes
+ENV JUPYTER_TOKEN=sysmlv2
+
+# set env
+ENV NVM_DIR=${HOME}/.nvm
+ENV NODE_VERSION=20.19.6
+ENV NVM_SYMLINK_DIR=/usr/local/bin
+
+# install node
+
+
+RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash 
+RUN source ${NVM_DIR}/nvm.sh
+ENV PATH=$NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH
+RUN source ~/.bashrc
+
+
+# Install SysMLv2 as Jupyter Kernel
 WORKDIR ${HOME}/SysML-v2-Release-${RELEASE}/
+ENV SYSML_VERSION=0.54.0
+RUN conda install "jupyter-sysml-kernel=$SYSML_VERSION" python=3.* jupyterlab=4.* graphviz=2.* nodejs=20.* -c conda-forge -y
+RUN jupyter labextension install "@systems-modeling/jupyterlab-sysml@$SYSML_VERSION"
+RUN python3 ./install/jupyter/install.py
+
+## Point the publish command to the local API server.
+RUN sed s/sysml2.intercax.com:9000/sysmlapiserver:9000/ -i ${HOME}/conda/share/jupyter/kernels/sysml/kernel.json
 
 ## Move any files in the top level directory to the doc directory
 RUN find . -maxdepth 1 -type f -exec mv \{\} doc \;
@@ -131,22 +125,25 @@ RUN mkdir notebooks
 COPY --chown=${NB_USER} notebooks/ notebooks/
 COPY --chown=${NB_USER} jupyter_server_config.py .
 
+COPY --chown=${NB_USER} jupyter_server_config.py ${HOME}/SysML-v2-Release-${RELEASE}
+
 
 # Move some top level notebooks to the toplevel
 RUN mv notebooks/*/StartHere.ipynb .
 RUN mv notebooks/*.ipynb .
 
 ## Trust the notebooks so that the SVG images will be displayed.
-# RUN find . -name \*.ipynb -exec jupyter trust \{\} \;
+RUN find . -name \*.ipynb -exec jupyter trust \{\} \;
 
 # USER ${NB_USER}
+RUN mkdir mydata
+RUN chown ${NB_USER}:${NB_USER} mydata
 
 ## Point the publish command to the local API server.
-# RUN sed s/sysml2.intercax.com:9000/sysmlapiserver:9000/ -i ${HOME}/conda/share/jupyter/kernels/sysml/kernel.json
+RUN sed s/sysml2.intercax.com:9000/sysmlapiserver:9000/ -i ${HOME}/conda/share/jupyter/kernels/sysml/kernel.json
 
 
 EXPOSE 8888
-CMD ["tail", "-f", "/dev/null"]
-# ENTRYPOINT jupyter lab --ip sysmljupyter --port 8888 - not this one
-# ENTRYPOINT jupyter lab --ip sysmljupyter --config ./jupyter_server_config.py
-# ENTRYPOINT jupyter server --ip sysmljupyter --config ${HOME}/jupyter_server_config.py -not this one
+# CMD ["tail", "-f", "/dev/null"]
+ENTRYPOINT jupyter lab --ip sysmljupyter --config ./jupyter_server_config.py
+

@@ -7,15 +7,13 @@ FROM amazoncorretto:11-al2023-jdk AS build
 ##
 
 
-RUN yum update -y && \
-    yum install -y -q \
-    shadow-utils   \
-    tar   \
-    gzip   \
-    glibc \
-    wget && \
-    yum clean all && \
-    rm -rf /var/cache/yum
+RUN dnf update -y && \
+    dnf install -y -q \
+      shadow-utils   \
+      tar   \
+      gzip   \
+      glibc \
+      wget
 
 ##
 ## Use a non-root user for installation
@@ -52,14 +50,6 @@ RUN tar xfz ${RELEASE}.tar.gz
 
 WORKDIR ${HOME}/SysML-v2-API-Services-${RELEASE}
 
-# At this point we do have access to the build.sbt file if we want to make any chnages in the future.
-# This does not work since extracting the tar file puts things in a specific directory.
-# WORKDIR ${HOME}/app
-
-# COPY build.sbt .
-# COPY build.properties project/.
-# COPY plugins.sbt project/.
-
 ##
 ## Basically this is all taken from
 ##     https://github.com/Systems-Modeling/SysML-v2-API-Services
@@ -73,7 +63,7 @@ RUN ${HOME}/sbt/bin/sbt compile
 RUN sed s/key=.whatever./key=\"longersecretnowarnings\"/ -i conf/application.conf
 
 ## need to allow the jupyter server access to the API server
-RUN echo "\n\nplay.filters.hosts {\n   allowed = [\"sysmlapiserver:9000\", \"localhost:9000\"]\n}\n" >> conf/application.conf
+RUN echo -e "\n\nplay.filters.hosts {\n   allowed = [\"sysmlapiserver:9000\", \"localhost:9000\"]\n}\n" >> conf/application.conf
 
 ## point the image to the postgres that is setup via docker-compose
 RUN sed s/localhost:5432/postgresdbserver:5432/ -i conf/META-INF/persistence.xml
@@ -91,9 +81,10 @@ RUN ${HOME}/sbt/bin/sbt dist
 FROM amazoncorretto:11-al2023-jdk
 
 USER root
-RUN yum update -y && \
-    yum install -y -q \
-    unzip
+RUN dnf update -y && \
+    dnf install -y -q \
+    unzip \
+    util-linux
 
 ARG RELEASE=2025-02
 ARG NB_USER=sysml
@@ -108,4 +99,5 @@ RUN rm -R scripts/bin
 RUN mv -f sysml-v2-api-services-${RELEASE}/* scripts/
 EXPOSE 9000
 ENTRYPOINT /usr/src/myapp/scripts/bin/sysml-v2-api-services
+# CMD ["tail", "-f", "/dev/null"]
 
