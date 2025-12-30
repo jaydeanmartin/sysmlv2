@@ -1,0 +1,40 @@
+FROM amazonlinux:2023
+
+RUN dnf update -y 
+RUN  dnf install -y -q \
+    shadow-utils  \
+    util-linux \
+    nodejs22 \ 
+    git
+
+ARG NODE_USER=node
+ARG NODE_UID=1000
+ARG HOME=/app
+
+# add a node user with a userid that matches the default one in the host VM so we can share volumes
+# it is also preferred to not run applications as root
+RUN adduser \
+  --uid ${NODE_UID} \
+  ${NODE_USER} 
+
+WORKDIR ${HOME}
+RUN chown -R ${NODE_USER} ${HOME}
+
+USER ${NODE_USER}
+
+EXPOSE 3000
+
+WORKDIR ${HOME}/sysmlv2
+
+# it seems we need to copy files into the container rather just use a shared volume since we 
+# can't update things during build
+# COPY --chown=${NODE_USER} frontend/sysmlv2/ /app/sysmlv2
+
+# need to change the name of the .css file used
+# RUN sed s/y.min.c/y.c/ -i /app/sysmlv2/node_modules/@jupyterlab/apputils-extension/style/notification.css
+# RUN sed 's+~react-toastify/dist/ReactToastify.min.css+react-toastify/dist/ReactToastify.css+' -i /app/sysmlv2/node_modules/@jupyterlab/apputils-extension/style/notification.css
+# lets just try to delete it
+# RUN sed -i '/ReactToastify./d' /app/sysmlv2/node_modules/@jupyterlab/apputils-extension/style/notification.css
+# CMD ["npm", "run", "dev"]
+ENTRYPOINT ["tail", "-f", "/dev/null"]
+

@@ -37,6 +37,19 @@ services:
     volumes:
       - "./mydata:/home/sysml/SysML-v2-Release-${SYSML_RELEASE}/mydata"
 
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.node
+    image: frontend
+    links:
+      - sysmljupyter
+    ports:
+      - "3000:3000"
+    restart: always
+    volumes:
+      - ./frontend:/app
+
 volumes:
   postgresdbserver:
 
