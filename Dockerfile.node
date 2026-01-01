@@ -24,7 +24,7 @@ USER ${NODE_USER}
 
 EXPOSE 3000
 
-WORKDIR ${HOME}/sysmlv2
+WORKDIR ${HOME}
 
 # it seems we need to copy files into the container rather just use a shared volume since we 
 # can't update things during build
