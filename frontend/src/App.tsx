@@ -5,27 +5,18 @@
  */
 
 import { useState } from "react";
-import { useJupyter, JupyterReactTheme } from '@datalayer/jupyter-react';
-import { CellExample } from "./examples/CellExample";
-import { NotebookExample } from "./examples/NotebookExample";
+import { JupyterReactTheme } from '@datalayer/jupyter-react';
 
-import reactLogo from "./assets/react.svg";
+import { SysMLEditor } from "./components/SysMLEditor/SysMLEditor";
 
 import "./App.css";
 
 function App() {
-  const { defaultKernel, serviceManager } = useJupyter({
-    jupyterServerUrl: "http://localhost:8888",
-    jupyterServerToken: "sysmlv2",
-    startDefaultKernel: true,
-  });
-  const [count, setCount] = useState(0);
   return (
     <div className="App">
       <>
         <JupyterReactTheme>
-          { defaultKernel && <CellExample kernel={defaultKernel}/> }
-          { defaultKernel && serviceManager && <NotebookExample kernel={defaultKernel} serviceManager={serviceManager}/> }
+          <SysMLEditor />
         </JupyterReactTheme>
       </>
     </div>

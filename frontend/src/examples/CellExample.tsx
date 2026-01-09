@@ -22,6 +22,14 @@ const DEFAULT_SOURCE = `from IPython.display import display
 for i in range(10):
     display('I am a long string which is repeatedly added to the dom in separated divs: %d' % i)`;
 
+const DEFAULT_SYSML = `package MyFirstSysMLv2Model {
+    part MySystem {
+        part partA;
+        part partB;
+        
+        connect partA to partB;
+    }
+}`;
 interface CellExampleProps {
   kernel: Kernel;
 }
@@ -32,20 +40,6 @@ export const CellExample = ({ kernel }: CellExampleProps) => {
   return (
     <>
       <Box as="h1">Cell Example</Box>
-      <Box as="pre">Source: {cellsStore.getSource(CELL_ID)}</Box>
-      <Box>Outputs Count: {cellsStore.getOutputsCount(CELL_ID)}</Box>
-      <Box>
-        Kernel State:{' '}
-        <Label>
-          {kernel && kernelsStore.getExecutionState(kernel.id)}
-        </Label>
-      </Box>
-      <Box>
-        Kernel Phase:{' '}
-        <Label>
-          {kernel && kernelsStore.getExecutionPhase(kernel.id)}
-        </Label>
-      </Box>
       <Box>
         <KernelIndicator
           kernel={kernel?.connection}
@@ -57,11 +51,11 @@ export const CellExample = ({ kernel }: CellExampleProps) => {
           leadingVisual={() => <PlayIcon />}
           onClick={() => cellsStore.execute(CELL_ID)}
         >
-          Run cell
+          Evaluate Cell
         </Button>
       </Box>
       {kernel && (
-        <Cell id={CELL_ID} source={DEFAULT_SOURCE} kernel={kernel} />
+        <Cell id={CELL_ID} source={DEFAULT_SYSML} kernel={kernel} />
       )}
     </>
   );

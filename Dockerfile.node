@@ -35,6 +35,6 @@ WORKDIR ${HOME}
 # RUN sed 's+~react-toastify/dist/ReactToastify.min.css+react-toastify/dist/ReactToastify.css+' -i /app/sysmlv2/node_modules/@jupyterlab/apputils-extension/style/notification.css
 # lets just try to delete it
 # RUN sed -i '/ReactToastify./d' /app/sysmlv2/node_modules/@jupyterlab/apputils-extension/style/notification.css
-# CMD ["npm", "run", "dev"]
-ENTRYPOINT ["tail", "-f", "/dev/null"]
+CMD ["npm", "run", "dev"]
+# ENTRYPOINT ["tail", "-f", "/dev/null"]
 
