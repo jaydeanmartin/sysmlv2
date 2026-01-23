@@ -1,0 +1,9 @@
+name: sysmlv2
+channels:
+  - conda-forge
+dependencies:
+  - python=3.*
+  - nodejs=20.*
+  - graphviz=2.*
+  - jupyterlab=4.*
+  - jupyter-sysml-kernel=0.55.0

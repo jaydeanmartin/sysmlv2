@@ -33,7 +33,7 @@ services:
     ports:
       - "8888:8888"
     restart: always
-    user: ${NB_USER}
+    # user: ${NB_USER}
     volumes:
       - "./mydata:/home/sysml/SysML-v2-Release-${SYSML_RELEASE}/mydata"
 
@@ -49,6 +49,18 @@ services:
     restart: always
     volumes:
       - ./frontend:/app
+
+  python:
+    build:
+      context: ./python
+      dockerfile: Dockerfile
+    image: python
+    links:
+      - sysmlapiserver
+    ports:
+      - "8080:8080"
+    restart: always
+
 
 volumes:
   postgresdbserver:

@@ -5,7 +5,7 @@ import Grid from '@mui/material/Grid';
 import { RichTreeView } from '@mui/x-tree-view/RichTreeView';
 import Button from '@mui/material/Button';
 
-const SYSML_API = 'http://localhost:9000/';
+const SYSML_API = 'http://localhost:8080/sysml/';
 const JUPYTER = 'http://localhost:8888';
 
 const SYSML_EDITOR_ID = 'sysml-editor';
@@ -54,11 +54,12 @@ export const SysMLEditor = () => {
 
     useEffect(() => {
         const getProjects = async () => {
-            const response = await fetch(SYSML_API+"projects");
-            const projects = await response.json();
-            console.log(projects);
+            // const response = await fetch(SYSML_API+"projects");
+            // const projects = await response.json();
+            // console.log(projects);
             var id_list = [];
             let p = [];
+            /*
             for (const project of projects) {
                 console.log(project);
                 const resp2 = await fetch(SYSML_API+"projects/"+project['@id']+"/query-results", {
@@ -95,7 +96,9 @@ export const SysMLEditor = () => {
 
                     p.push({label: project.name.split(" ")[0], id: project['@id'], children: part_list})
                 }
+                    
             }
+                */
             setProjects(p);
         }
         getProjects();
@@ -172,7 +175,7 @@ export const SysMLEditor = () => {
             onClick={handleEvaluate}
             variant="contained"
             disabled={false}>
-                Evalaute
+                Evaluate
             </Button>
             <Button
             onClick={handleGraph}
