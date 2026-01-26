@@ -15,4 +15,4 @@ set -euo pipefail
 
 # exec the final command:
 # exec tail -f /dev/null
-exec jupyter lab --ip sysmljupyter --config ./jupyter_server_config.py --allow-root
+exec jupyter lab --ip sysmljupyter --config ./jupyter_server_config.py --allow-root --no-browser

@@ -14,7 +14,7 @@ def get_projects():
     projects_response = requests.get(projects_url)
     if projects_response.status_code == 200:
         projects = projects_response.json()
-        projects_data = list(map(lambda b: {'name':b['name'], 'id':b['@id']}, projects))
+        projects_data = list(map(lambda b: {'label':b['name'], 'id':b['@id']}, projects))
     # let's start with some fake data
     res = { 'projects': projects_data}
     return res

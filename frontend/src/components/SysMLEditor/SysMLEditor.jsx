@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Output, useJupyter, useKernelsStore, useOutputsStore, useCellsStore } from '@datalayer/jupyter-react';
+import { Output, useJupyter, useKernelsStore, useOutputsStore, useCellsStore, Cell } from '@datalayer/jupyter-react';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import { RichTreeView } from '@mui/x-tree-view/RichTreeView';
@@ -8,7 +8,9 @@ import Button from '@mui/material/Button';
 const SYSML_API = 'http://localhost:8080/sysml/';
 const JUPYTER = 'http://localhost:8888';
 
-const SYSML_EDITOR_ID = 'sysml-editor';
+const SYSML_EDITOR_ID = 'sysml-editor-1';
+const SYSML_EDITOR_ID2 = 'sysml-editor-2';
+
 const SYSML_GRAPH_ID = 'sysml-graph';
 
 const DEFAULT_SYSML = `package MyFirstSysMLv2Model {
@@ -51,6 +53,44 @@ export const SysMLEditor = () => {
             ]
         }
     };
+
+    const DEFAULT_PROJECTS = [
+  {
+    id: 'grid',
+    label: 'Data Grid',
+    children: [
+      { id: 'grid-community', label: '@mui/x-data-grid' },
+      { id: 'grid-pro', label: '@mui/x-data-grid-pro' },
+      { id: 'grid-premium', label: '@mui/x-data-grid-premium' },
+    ],
+  },
+  {
+    id: 'pickers',
+    label: 'Date and Time Pickers',
+    children: [
+      { id: 'pickers-community', label: '@mui/x-date-pickers' },
+      { id: 'pickers-pro', label: '@mui/x-date-pickers-pro' },
+    ],
+  },
+  {
+    id: 'charts',
+    label: 'Charts',
+    children: [
+      { id: 'charts-community', label: '@mui/x-charts' },
+      { id: 'charts-pro', label: '@mui/charts-pro' },
+    ],
+  },
+  {
+    id: 'tree-view',
+    label: 'Tree View',
+    children: [
+      { id: 'tree-view-community', label: '@mui/x-tree-view' },
+      { id: 'tree-view-pro', label: '@mui/x-tree-view-pro' },
+    ],
+  },
+];
+
+    
 
     useEffect(() => {
         const getProjects = async () => {
@@ -99,7 +139,8 @@ export const SysMLEditor = () => {
                     
             }
                 */
-            setProjects(p);
+           // setProjects(p);
+           setProjects(DEFAULT_PROJECTS);
         }
         getProjects();
     }, []);
@@ -149,8 +190,7 @@ export const SysMLEditor = () => {
             <Grid size={9}>
                 <Box
                     sx={{
-                        display: "flex",
-                        flexDirection: "column",
+                        width: 800,
                         height: 300,
                         overflow: "hidden",
                         overflowY: "auto",

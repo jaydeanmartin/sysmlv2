@@ -29,9 +29,12 @@ RUN pip install -r requirements.txt
 
 COPY src/ .
 
-# Add the current directory to PATRH so Python can import modules
+# Add the current directory to PATH so Python can import modules
 ENV PATH="$PATH:$APP_HOME"
 
 EXPOSE 8080
 
-CMD ["fastapi", "dev", "/api/main.py", "--port", "8080", "--host", "0.0.0.0"]
+# running in dev mode allows code to auto-reload, but also pegs cpu and leaks memory
+# since we aren't setting up a volume to edit code live, no need to run dev mode
+# CMD ["fastapi", "dev", "/api/main.py", "--port", "8080", "--host", "0.0.0.0"]
+CMD ["fastapi", "run", "/api/main.py", "--port", "8080", "--host", "0.0.0.0"]
